@@ -1,0 +1,79 @@
+- name: create ext volume for data
+  file: state=directory path={{ ext_activemq_data_volume }} owner=999
+
+- name: create ext volume for conf
+  file: state=directory path={{ ext_activemq_conf_volume }} owner=root
+
+- name: put activemq.xml
+  template: src=activemq.xml dest={{ ext_activemq_conf_volume }}/activemq.xml
+
+- name: copy broker-localhost.cert
+  copy: src=broker-localhost.cert dest={{ ext_activemq_conf_volume }}/broker-localhost.cert
+
+- name: put broker.ks
+  copy: src=broker.ks dest={{ ext_activemq_conf_volume }}/broker.ks
+
+- name: put broker.ts
+  copy: src=broker.ts dest={{ ext_activemq_conf_volume }}/broker.ts
+
+- name: put client.ks
+  copy: src=client.ks dest={{ ext_activemq_conf_volume }}/client.ks
+
+- name: put client.ts
+  copy: src=client.ts dest={{ ext_activemq_conf_volume }}/client.ts
+
+- name: put credentials-enc.properties
+  template: src=credentials-enc.properties dest={{ ext_activemq_conf_volume }}/credentials-enc.properties
+
+- name: put credentials.properties
+  template: src=credentials.properties dest={{ ext_activemq_conf_volume }}/credentials.properties
+
+- name: put groups.properties
+  template: src=groups.properties dest={{ ext_activemq_conf_volume }}/groups.properties
+
+- name: put java.security
+  template: src=java.security dest={{ ext_activemq_conf_volume }}/java.security
+
+- name: put jetty-realm.properties
+  template: src=jetty-realm.properties dest={{ ext_activemq_conf_volume }}/jetty-realm.properties
+
+- name: put jetty.xml
+  template: src=jetty.xml dest={{ ext_activemq_conf_volume }}/jetty.xml
+
+- name: put jmx.access
+  template: src=jmx.access dest={{ ext_activemq_conf_volume }}/jmx.access
+
+- name: put jmx.password
+  template: src=jmx.password dest={{ ext_activemq_conf_volume }}/jmx.password
+
+- name: put log4j.properties
+  template: src=log4j.properties dest={{ ext_activemq_conf_volume }}/log4j.properties
+
+- name: put logging.properties
+  template: src=logging.properties dest={{ ext_activemq_conf_volume }}/logging.properties
+
+- name: put login.config
+  template: src=login.config dest={{ ext_activemq_conf_volume }}/login.config
+
+- name: put users.properties
+  template: src=users.properties dest={{ ext_activemq_conf_volume }}/users.properties
+
+- name: create ext tmp volume
+  file: state=directory path={{ ext_activemq_tmp_volume }} owner=root mode=1777
+
+- name: start an ActiveMQ container
+  docker_container:
+    image: rmohr/activemq
+    state: started
+    read_only: no
+    recreate: yes
+    restart_policy: always
+    hostname: "{{ ansible_hostname }}-{{ activemq_container_name }}"
+    ports:
+      - "{{ activemq_container_host_address }}:{{ activemq_broker_port }}:61616"
+      - "{{ activemq_container_host_address }}:{{ activemq_webconsole_port }}:8161"
+    volumes:
+      - "{{ ext_activemq_data_volume }}:/opt/activemq/data"
+      - "{{ ext_activemq_conf_volume }}:/opt/activemq/conf"
+      - "{{ ext_activemq_tmp_volume }}:/tmp"
+    name: "{{ activemq_container_name }}"

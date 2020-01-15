@@ -1,0 +1,7 @@
+activemq_container_name: activemq
+activemq_container_host_address: 0.0.0.0
+activemq_broker_port: 61616
+activemq_webconsole_port: 8161
+ext_activemq_data_volume: /var/lib/docker-extvols/activemq/data
+ext_activemq_tmp_volume: /var/lib/docker-extvols/activemq/tmp
+ext_activemq_conf_volume: /var/lib/docker-extvols/activemq/conf
